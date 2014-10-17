@@ -22,8 +22,8 @@ void serial_init(void)
 	 * Initialize UART pin connect
 	 */
 	PinCfg.Funcnum = 1;
-	PinCfg.OpenDrain = 0;
-	PinCfg.Pinmode = 0;
+	PinCfg.OpenDrain = PINSEL_PINMODE_NORMAL;
+	PinCfg.Pinmode = PINSEL_PINMODE_PULLUP;
 	// USB serial first
 	PinCfg.Portnum = 0;
 	PinCfg.Pinnum = 2;
@@ -54,47 +54,47 @@ void serial_init(void)
 }
 
 void init_i2c(void) {
- PINSEL_CFG_Type PinCfg; // declare data struct with param members
- PinCfg.OpenDrain = 0;
- PinCfg.Pinmode = 0;
- PinCfg.Funcnum = 3;
- PinCfg.Pinnum = 0;
- PinCfg.Portnum = 0;
- PINSEL_ConfigPin(&PinCfg); // configure pin 0 of port0
- PinCfg.Pinnum = 1;
- PINSEL_ConfigPin(&PinCfg); // configure pin 1 of port0
- I2C_Init(LPC_I2C1, 100000); // Initialize I2C peripheral
- I2C_Cmd(LPC_I2C1, ENABLE); // Enable I2C1 operation 
+ 	PINSEL_CFG_Type PinCfg; // declare data struct with param members
+	PinCfg.OpenDrain = PINSEL_PINMODE_NORMAL;
+ 	PinCfg.Pinmode = PINSEL_PINMODE_PULLUP;
+ 	PinCfg.Funcnum = 3;
+ 	PinCfg.Pinnum = 0;
+ 	PinCfg.Portnum = 0;
+ 	PINSEL_ConfigPin(&PinCfg); // configure pin 0 of port0
+ 	PinCfg.Pinnum = 1;
+ 	PINSEL_ConfigPin(&PinCfg); // configure pin 1 of port0
+ 	I2C_Init(LPC_I2C1, 100000); // Initialize I2C peripheral
+ 	I2C_Cmd(LPC_I2C1, ENABLE); // Enable I2C1 operation 
 }
 
 int main(void) {
-    serial_init();
-    init_i2c();
+    	serial_init();
+    	init_i2c();
 
-    uint8_t data = 41;
+    	uint8_t data = 41;
 
-    Status result;
+    	Status result;
 	I2C_M_SETUP_Type I2CConfigStruct;
-    I2CConfigStruct.tx_data = &data;
-    I2CConfigStruct.tx_length = 8;
-    I2CConfigStruct.retransmissions_max = 3;
+    	I2CConfigStruct.tx_data = &data;
+    	I2CConfigStruct.tx_length = 8;
+    	I2CConfigStruct.retransmissions_max = 3;
 
-    int count = 0;
-    int i;
-    char addr_str[50];
-    for (i = 0; i < ( 0xFF >> 1); i++) {
-        I2CConfigStruct.sl_addr7bit = i;
-        result = I2C_MasterTransferData(LPC_I2C1, &I2CConfigStruct, I2C_TRANSFER_POLLING);
-        if (result == SUCCESS) {
-            sprintf(addr_str, "device found at address %d\r\n", i);
-            write_usb_serial_blocking(addr_str, strlen(addr_str));
-            count++;
-        }
-    }
+    	int count = 0;
+    	int i;
+    	char addr_str[50];
+    	for (i = 0; i < ( 0xFF >> 1); i++) {
+        	I2CConfigStruct.sl_addr7bit = i;
+        	result = I2C_MasterTransferData(LPC_I2C1, &I2CConfigStruct, I2C_TRANSFER_POLLING);
+        	if (result == SUCCESS) {
+            	sprintf(addr_str, "device found at address %d\r\n", i);
+            	write_usb_serial_blocking(addr_str, strlen(addr_str));
+            	count++;
+        	}
+    	}
 
-    char count_str[50];
-    sprintf(count_str, "%d devices connected to i2c bus\r\n", count);
-    write_usb_serial_blocking(count_str, strlen(count_str));
+    	char count_str[50];
+	sprintf(count_str, "%d devices connected to i2c bus\r\n", count);
+    	write_usb_serial_blocking(count_str, strlen(count_str));
     
-    return count;
+	return 0;
 }
