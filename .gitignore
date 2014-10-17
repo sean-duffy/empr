@@ -1,0 +1,11 @@
+mini_project_1/led/bin
+mini_project_1/ledbits/bin
+
+mini_project_2/ic2/bin
+mini_project_2/serial/bin
+
+*.o
+
+lpc1700.map
+
+
