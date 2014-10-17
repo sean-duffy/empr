@@ -71,9 +71,11 @@ int main(void) {
     serial_init();
     init_i2c();
 
+    uint8_t data = 41;
+
     Status result;
 	I2C_M_SETUP_Type I2CConfigStruct;
-    I2CConfigStruct.tx_data = 1;
+    I2CConfigStruct.tx_data = &data;
     I2CConfigStruct.tx_length = 8;
     I2CConfigStruct.retransmissions_max = 3;
 
