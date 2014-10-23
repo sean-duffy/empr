@@ -4,7 +4,7 @@
 int duration_passed = 0;
 
 void SysTick_Handler(void) {
-    duration_passed = 1;
+        duration_passed++;
 }
 
 int main (void) {
@@ -14,7 +14,7 @@ int main (void) {
     int delay;
     delay = 1 << 21;
 
-    SysTick_Config(SystemCoreClock / 10);
+    SysTick_Config(SystemCoreClock / 6);
 
     GPIO_SetDir(1, (101101 << 18), 1);
 
@@ -22,7 +22,7 @@ int main (void) {
         for (i = 0; i < 4; i++) {
             GPIO_SetValue(1, (1 << leds[i]));
 
-            while (duration_passed == 0);
+            while (duration_passed != 5);
             duration_passed = 0;
 
             GPIO_ClearValue(1, (1 << leds[i]));

@@ -1,4 +1,12 @@
 #include "lpc17xx_gpio.h"
+#include "LPC17xx.h"
+
+int duration_passed = 0;
+
+void SysTick_Handler(void) {
+    duration_passed = 1;
+}
+
 
 void get_bin(int num, char *str) {
     *(str+5) = '\0';
@@ -35,7 +43,7 @@ int main(void) {
     while (1) {
         for (i = 0; i < 16; i++) {
             display_num(i);
-            for (x = 0; x < delay; x++);
+            while (duration_passed == 0);
         }
     }
 
