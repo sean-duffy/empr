@@ -4,7 +4,7 @@
 int duration_passed = 0;
 
 void SysTick_Handler(void) {
-    duration_passed = 1;
+    duration_passed++;
 }
 
 
@@ -33,8 +33,8 @@ void display_num(int n) {
 
 int main(void) {
     int x;
-    int delay;
-    delay = 1 << 21;
+
+    SysTick_Config(SystemCoreClock / 6);
 
     GPIO_SetDir(1, (101101 << 18), 1);
 
@@ -43,7 +43,8 @@ int main(void) {
     while (1) {
         for (i = 0; i < 16; i++) {
             display_num(i);
-            while (duration_passed == 0);
+            while (duration_passed != 4);
+            duration_passed = 0;
         }
     }
 

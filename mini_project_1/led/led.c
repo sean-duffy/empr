@@ -11,8 +11,6 @@ int main (void) {
     int i;
     int n;
     int leds[] = {18, 20, 21, 23};
-    int delay;
-    delay = 1 << 21;
 
     SysTick_Config(SystemCoreClock / 6);
 
