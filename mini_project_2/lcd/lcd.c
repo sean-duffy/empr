@@ -55,9 +55,9 @@ int main(void) {
     I2CConfigStruct.tx_length = 2;
     result = I2C_MasterTransferData(LPC_I2C1, &I2CConfigStruct, I2C_TRANSFER_POLLING);
 
-    uint8_t data_write[2] = {0x40, 'a'};
+    uint8_t data_write[12] = {0x40, 'h', 'e', 'l', 'l', 'o', 0xA0, 'w', 'o', 'r', 'l', 'd'};
     I2CConfigStruct.tx_data = data_write;
-    I2CConfigStruct.tx_length = 2;
+    I2CConfigStruct.tx_length = 12;
     result = I2C_MasterTransferData(LPC_I2C1, &I2CConfigStruct, I2C_TRANSFER_POLLING);
 
     GPIO_SetValue(1, (1 << 18));
