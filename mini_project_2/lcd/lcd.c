@@ -31,6 +31,7 @@ int main(void) {
     init_i2c();
 
     SysTick_Config(SystemCoreClock / 6);
+    GPIO_SetDir(1, (101101 << 18), 1);
 
 	I2C_M_SETUP_Type I2CConfigStruct;
     I2CConfigStruct.retransmissions_max = 3;
@@ -38,21 +39,23 @@ int main(void) {
 
     uint8_t lcd_init[6] = {0x00, 0x35, 0x9F, 0x34, 0x0C, 0x02};
     I2CConfigStruct.tx_data = lcd_init;
-    I2CConfigStruct.tx_length = 10 * 8;
+    I2CConfigStruct.tx_length = 6;
     result = I2C_MasterTransferData(LPC_I2C1, &I2CConfigStruct, I2C_TRANSFER_POLLING);
 
     uint8_t clear[2] = {0x00, 0x01};
     I2CConfigStruct.tx_data = clear;
-    I2CConfigStruct.tx_length = 2 * 8;
+    I2CConfigStruct.tx_length = 2;
     result = I2C_MasterTransferData(LPC_I2C1, &I2CConfigStruct, I2C_TRANSFER_POLLING);
 
     while (duration_passed != 10);
     duration_passed = 0;
 
-    uint8_t lcd_write[4] = {0x00, 0x80, 0x40, 0x64};
+    uint8_t lcd_write[3] = {0x00, 0x40, 0x50};
     I2CConfigStruct.tx_data = lcd_write;
-    I2CConfigStruct.tx_length = 4 * 8;
+    I2CConfigStruct.tx_length = 3;
     result = I2C_MasterTransferData(LPC_I2C1, &I2CConfigStruct, I2C_TRANSFER_POLLING);
+
+    GPIO_SetValue(1, (1 << 18));
 
     return 0;
 }
