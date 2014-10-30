@@ -50,9 +50,14 @@ int main(void) {
     while (duration_passed != 10);
     duration_passed = 0;
 
-    uint8_t lcd_write[3] = {0x00, 0x40, 0x50};
-    I2CConfigStruct.tx_data = lcd_write;
-    I2CConfigStruct.tx_length = 3;
+    uint8_t addr_write[2] = {0x00, 0x80};
+    I2CConfigStruct.tx_data = addr_write;
+    I2CConfigStruct.tx_length = 2;
+    result = I2C_MasterTransferData(LPC_I2C1, &I2CConfigStruct, I2C_TRANSFER_POLLING);
+
+    uint8_t data_write[2] = {0x40, 'a'};
+    I2CConfigStruct.tx_data = data_write;
+    I2CConfigStruct.tx_length = 2;
     result = I2C_MasterTransferData(LPC_I2C1, &I2CConfigStruct, I2C_TRANSFER_POLLING);
 
     GPIO_SetValue(1, (1 << 18));
