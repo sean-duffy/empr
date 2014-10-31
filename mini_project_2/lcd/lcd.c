@@ -48,7 +48,7 @@ void lcd_write_message(I2C_M_SETUP_Type * i2c_config, char message[], int length
                     p = i;
                 }
 
-                if (message[i-1] > 64 && message[i-1] < 91) {
+                if (message[i-1] < 91) {
                     data_write[p] = message[i-1] + 128;
                 } else if (message[i-1] == ' ') {
                     data_write[p] = 0xA0;
@@ -85,7 +85,7 @@ int main(void) {
     uint8_t addr_write[] = {0x00, 0x80};
     lcd_write_bytes(&I2CConfigStruct, addr_write, sizeof(addr_write));
 
-    char message[] = "Hello World     1 2 3";
+    char message[] = "Hello World     2 + 2 = 4";
     lcd_write_message(&I2CConfigStruct, message, sizeof(message));
 
     GPIO_SetValue(1, (1 << 18));
