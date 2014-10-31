@@ -32,6 +32,33 @@ void lcd_write_bytes(I2C_M_SETUP_Type * i2c_config, uint8_t bytes[], int length)
     I2C_MasterTransferData(LPC_I2C1, i2c_config, I2C_TRANSFER_POLLING);
 }
 
+void lcd_write_message(I2C_M_SETUP_Type * i2c_config, char message[], int length) {
+    uint8_t data_write[17];
+    int i;
+    for (i = 0; i < sizeof(data_write); i++) {
+        if (i == 0) {
+            data_write[i] = 0x40;
+        } else {
+
+            if (i < length) {
+                switch (message[i-1]) {
+                    case ' ':
+                        data_write[i] = 0xA0;
+                        break;
+
+                    default:
+                        data_write[i] = message[i-1];
+                }
+            } else {
+                data_write[i] = 0xA0;
+            }
+
+        }
+    }
+
+    lcd_write_bytes(i2c_config, data_write, sizeof(data_write));
+}
+
 int main(void) {
     init_i2c();
 
@@ -54,8 +81,8 @@ int main(void) {
     uint8_t addr_write[] = {0x00, 0x80};
     lcd_write_bytes(&I2CConfigStruct, addr_write, sizeof(addr_write));
 
-    uint8_t data_write[] = {0x40, 'h', 'e', 'l', 'l', 'o', 0xA0, 'w', 'o', 'r', 'l', 'd'};
-    lcd_write_bytes(&I2CConfigStruct, data_write, sizeof(data_write));
+    char message[] = "hello world";
+    lcd_write_message(&I2CConfigStruct, message, sizeof(message));
 
     GPIO_SetValue(1, (1 << 18));
 
