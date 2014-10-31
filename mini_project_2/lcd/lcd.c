@@ -47,22 +47,16 @@ int main(void) {
     lcd_write_bytes(&I2CConfigStruct, lcd_init, sizeof(lcd_init));
 
     uint8_t clear[2] = {0x00, 0x01};
-    I2CConfigStruct.tx_data = clear;
-    I2CConfigStruct.tx_length = 2;
-    result = I2C_MasterTransferData(LPC_I2C1, &I2CConfigStruct, I2C_TRANSFER_POLLING);
+    lcd_write_bytes(&I2CConfigStruct, clear, sizeof(clear));
 
     while (duration_passed != 10);
     duration_passed = 0;
 
     uint8_t addr_write[2] = {0x00, 0x80};
-    I2CConfigStruct.tx_data = addr_write;
-    I2CConfigStruct.tx_length = 2;
-    result = I2C_MasterTransferData(LPC_I2C1, &I2CConfigStruct, I2C_TRANSFER_POLLING);
+    lcd_write_bytes(&I2CConfigStruct, addr_write, sizeof(addr_write));
 
     uint8_t data_write[12] = {0x40, 'h', 'e', 'l', 'l', 'o', 0xA0, 'w', 'o', 'r', 'l', 'd'};
-    I2CConfigStruct.tx_data = data_write;
-    I2CConfigStruct.tx_length = 12;
-    result = I2C_MasterTransferData(LPC_I2C1, &I2CConfigStruct, I2C_TRANSFER_POLLING);
+    lcd_write_bytes(&I2CConfigStruct, data_write, sizeof(data_write));
 
     GPIO_SetValue(1, (1 << 18));
 
