@@ -33,7 +33,6 @@ void lcd_write_bytes(I2C_M_SETUP_Type * i2c_config, uint8_t bytes[], int length)
 }
 
 int main(void) {
-    Status result;
     init_i2c();
 
     SysTick_Config(SystemCoreClock / 6);
@@ -43,19 +42,19 @@ int main(void) {
     I2CConfigStruct.retransmissions_max = 3;
     I2CConfigStruct.sl_addr7bit = 59;
 
-    uint8_t lcd_init[6] = {0x00, 0x35, 0x9F, 0x34, 0x0C, 0x02};
+    uint8_t lcd_init[] = {0x00, 0x35, 0x9F, 0x34, 0x0C, 0x02};
     lcd_write_bytes(&I2CConfigStruct, lcd_init, sizeof(lcd_init));
 
-    uint8_t clear[2] = {0x00, 0x01};
+    uint8_t clear[] = {0x00, 0x01};
     lcd_write_bytes(&I2CConfigStruct, clear, sizeof(clear));
 
     while (duration_passed != 10);
     duration_passed = 0;
 
-    uint8_t addr_write[2] = {0x00, 0x80};
+    uint8_t addr_write[] = {0x00, 0x80};
     lcd_write_bytes(&I2CConfigStruct, addr_write, sizeof(addr_write));
 
-    uint8_t data_write[12] = {0x40, 'h', 'e', 'l', 'l', 'o', 0xA0, 'w', 'o', 'r', 'l', 'd'};
+    uint8_t data_write[] = {0x40, 'h', 'e', 'l', 'l', 'o', 0xA0, 'w', 'o', 'r', 'l', 'd'};
     lcd_write_bytes(&I2CConfigStruct, data_write, sizeof(data_write));
 
     GPIO_SetValue(1, (1 << 18));
