@@ -26,6 +26,12 @@ void init_i2c(void) {
     I2C_Cmd(LPC_I2C1, ENABLE); // Enable I2C1 operation 
 }
 
+void lcd_write_bytes(I2C_M_SETUP_Type * i2c_config, uint8_t bytes[], int length) {
+    i2c_config->tx_data = bytes;
+    i2c_config->tx_length = length;
+    I2C_MasterTransferData(LPC_I2C1, i2c_config, I2C_TRANSFER_POLLING);
+}
+
 int main(void) {
     Status result;
     init_i2c();
@@ -38,9 +44,7 @@ int main(void) {
     I2CConfigStruct.sl_addr7bit = 59;
 
     uint8_t lcd_init[6] = {0x00, 0x35, 0x9F, 0x34, 0x0C, 0x02};
-    I2CConfigStruct.tx_data = lcd_init;
-    I2CConfigStruct.tx_length = 6;
-    result = I2C_MasterTransferData(LPC_I2C1, &I2CConfigStruct, I2C_TRANSFER_POLLING);
+    lcd_write_bytes(&I2CConfigStruct, lcd_init, sizeof(lcd_init));
 
     uint8_t clear[2] = {0x00, 0x01};
     I2CConfigStruct.tx_data = clear;
