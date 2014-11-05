@@ -69,24 +69,26 @@ int main(void) {
     SysTick_Config(SystemCoreClock / 6);
     GPIO_SetDir(1, (101101 << 18), 1);
 
-	I2C_M_SETUP_Type I2CConfigStruct;
-    I2CConfigStruct.retransmissions_max = 3;
-    I2CConfigStruct.sl_addr7bit = 59;
+
+
+	I2C_M_SETUP_Type I2CConfigStruct_Numpad;
+    I2CConfigStruct_Numpad.retransmissions_max = 3;
+    I2CConfigStruct_Numpad.sl_addr7bit = 59;
 
     uint8_t lcd_init[] = {0x00, 0x35, 0x9F, 0x34, 0x0C, 0x02};
-    lcd_write_bytes(&I2CConfigStruct, lcd_init, sizeof(lcd_init));
+    lcd_write_bytes(&I2CConfigStruct_Numpad, lcd_init, sizeof(lcd_init));
 
     uint8_t clear[] = {0x00, 0x01};
-    lcd_write_bytes(&I2CConfigStruct, clear, sizeof(clear));
+    lcd_write_bytes(&I2CConfigStruct_Numpad, clear, sizeof(clear));
 
     while (duration_passed != 10);
     duration_passed = 0;
 
     uint8_t addr_write[] = {0x00, 0x80};
-    lcd_write_bytes(&I2CConfigStruct, addr_write, sizeof(addr_write));
+    lcd_write_bytes(&I2CConfigStruct_Numpad, addr_write, sizeof(addr_write));
 
-    char message[] = "Hello World     2 + 2 = 4";
-    lcd_write_message(&I2CConfigStruct, message, sizeof(message));
+    char message[] = "0123456789      ";
+    lcd_write_message(&I2CConfigStruct_Numpad, message, sizeof(message));
 
     GPIO_SetValue(1, (1 << 18));
 
