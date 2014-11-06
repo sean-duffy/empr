@@ -12,6 +12,29 @@ void SysTick_Handler(void) {
     duration_passed++;
 }
 
+void get_bin(int num, char *str) {
+    *(str+5) = '\0';
+    int mask = 0x8 << 1;
+    while(mask >>= 1)
+    *str++ = !!(mask & num) + '0';
+}
+
+void display_num(int n) {
+    int leds[] = {0, 18, 20, 21, 23};
+    char bin_string[4];
+    int i;
+
+    get_bin(n, bin_string);
+
+    GPIO_ClearValue(1, (101101 << 18));
+
+    for (i = 0; i < 4; i++) {
+        if (bin_string[i] == '1') {
+            GPIO_SetValue(1, (1 << leds[i + 1]));
+        }
+    }
+}
+
 void init_i2c(void) {
     PINSEL_CFG_Type PinCfg; // declare data struct with param members
     PinCfg.OpenDrain = 0;
@@ -61,7 +84,7 @@ void lcd_write_message(I2C_M_SETUP_Type * i2c_config, char message[], int length
         }
     }
 
-    i2c_write_bytes(i2c_config, 59, data_write, sizeof(data_write));
+    i2c_write_bytes(i2c_config, 59, data_write, 58);
 }
 
 int main(void) {
@@ -70,25 +93,20 @@ int main(void) {
     SysTick_Config(SystemCoreClock / 6);
     GPIO_SetDir(1, (101101 << 18), 1);
 
+    uint8_t response = 5;
+
 	I2C_M_SETUP_Type I2CConfigStruct;
     I2CConfigStruct.retransmissions_max = 3;
+    I2CConfigStruct.rx_data = &response;
+    I2CConfigStruct.rx_length = 1;
 
-    uint8_t lcd_init[] = {0x00, 0x35, 0x9F, 0x34, 0x0C, 0x02};
-    i2c_write_bytes(&I2CConfigStruct, 59, lcd_init, sizeof(lcd_init));
+    uint8_t bytes[] = {0x0F};
+    i2c_write_bytes(&I2CConfigStruct, 33, bytes, sizeof(bytes));
 
-    uint8_t clear[] = {0x00, 0x01};
-    i2c_write_bytes(&I2CConfigStruct, 59, clear, sizeof(clear));
-
-    while (duration_passed != 1);
-    duration_passed = 0;
-
-    uint8_t addr_write[] = {0x00, 0x80};
-    i2c_write_bytes(&I2CConfigStruct, 59, addr_write, sizeof(addr_write));
-
-    char message[] = "0123456789      ";
-    lcd_write_message(&I2CConfigStruct, message, sizeof(message));
-
-    GPIO_SetValue(1, (1 << 18));
+    while (1) {
+        i2c_write_bytes(&I2CConfigStruct, 33, bytes, sizeof(bytes));
+        display_num(response);
+    }
 
     return 0;
 }
