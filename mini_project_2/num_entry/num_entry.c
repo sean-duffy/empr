@@ -26,9 +26,10 @@ void init_i2c(void) {
     I2C_Cmd(LPC_I2C1, ENABLE); // Enable I2C1 operation 
 }
 
-void lcd_write_bytes(I2C_M_SETUP_Type * i2c_config, uint8_t bytes[], int length) {
+void i2c_write_bytes(I2C_M_SETUP_Type * i2c_config, int address, uint8_t bytes[], int length) {
     i2c_config->tx_data = bytes;
     i2c_config->tx_length = length;
+    i2c_config->sl_addr7bit = address;
     I2C_MasterTransferData(LPC_I2C1, i2c_config, I2C_TRANSFER_POLLING);
 }
 
@@ -60,7 +61,7 @@ void lcd_write_message(I2C_M_SETUP_Type * i2c_config, char message[], int length
         }
     }
 
-    lcd_write_bytes(i2c_config, data_write, sizeof(data_write));
+    i2c_write_bytes(i2c_config, 59, data_write, sizeof(data_write));
 }
 
 int main(void) {
@@ -69,24 +70,23 @@ int main(void) {
     SysTick_Config(SystemCoreClock / 6);
     GPIO_SetDir(1, (101101 << 18), 1);
 
-	I2C_M_SETUP_Type I2CConfigStruct_LCD;
-    I2CConfigStruct_LCD.retransmissions_max = 3;
-    I2CConfigStruct_LCD.sl_addr7bit = 59;
+	I2C_M_SETUP_Type I2CConfigStruct;
+    I2CConfigStruct.retransmissions_max = 3;
 
     uint8_t lcd_init[] = {0x00, 0x35, 0x9F, 0x34, 0x0C, 0x02};
-    lcd_write_bytes(&I2CConfigStruct_LCD, lcd_init, sizeof(lcd_init));
+    i2c_write_bytes(&I2CConfigStruct, 59, lcd_init, sizeof(lcd_init));
 
     uint8_t clear[] = {0x00, 0x01};
-    lcd_write_bytes(&I2CConfigStruct_LCD, clear, sizeof(clear));
+    i2c_write_bytes(&I2CConfigStruct, 59, clear, sizeof(clear));
 
-    while (duration_passed != 10);
+    while (duration_passed != 1);
     duration_passed = 0;
 
     uint8_t addr_write[] = {0x00, 0x80};
-    lcd_write_bytes(&I2CConfigStruct_LCD, addr_write, sizeof(addr_write));
+    i2c_write_bytes(&I2CConfigStruct, 59, addr_write, sizeof(addr_write));
 
     char message[] = "0123456789      ";
-    lcd_write_message(&I2CConfigStruct_LCD, message, sizeof(message));
+    lcd_write_message(&I2CConfigStruct, message, sizeof(message));
 
     GPIO_SetValue(1, (1 << 18));
 
