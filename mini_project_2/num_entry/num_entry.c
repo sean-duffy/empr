@@ -12,29 +12,6 @@ void SysTick_Handler(void) {
     duration_passed++;
 }
 
-void get_bin(int num, char *str) {
-    *(str+5) = '\0';
-    int mask = 0x8 << 1;
-    while(mask >>= 1)
-    *str++ = !!(mask & num) + '0';
-}
-
-void display_num(int n) {
-    int leds[] = {0, 18, 20, 21, 23};
-    char bin_string[4];
-    int i;
-
-    get_bin(n, bin_string);
-
-    GPIO_ClearValue(1, (101101 << 18));
-
-    for (i = 0; i < 4; i++) {
-        if (bin_string[i] == '1') {
-            GPIO_SetValue(1, (1 << leds[i + 1]));
-        }
-    }
-}
-
 void init_i2c(void) {
     PINSEL_CFG_Type PinCfg; // declare data struct with param members
     PinCfg.OpenDrain = 0;
@@ -131,7 +108,6 @@ int main(void) {
         lcd_write_message(&I2CConfigStruct, message, sizeof(message));
 
         i2c_write_bytes(&I2CConfigStruct_Numpad, 33, bytes, sizeof(bytes));
-        display_num(response);
     }
 
     return 0;
