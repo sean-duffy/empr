@@ -1,4 +1,5 @@
 #include <string.h>
+#include <math.h>
 #include <stdio.h>
 #include "lpc17xx_gpio.h"
 #include "lpc17xx_i2c.h"
@@ -71,9 +72,6 @@ void lcd_write_message(I2C_M_SETUP_Type * i2c_config, char message[], int length
     }
 
     i2c_write_bytes(i2c_config, 59, data_write, 58);
-
-    while (duration_passed != 5);
-    duration_passed = 0;
 }
 
 int main(void) {
@@ -88,8 +86,8 @@ int main(void) {
     uint8_t lcd_init[] = {0x00, 0x35, 0x9F, 0x34, 0x0C, 0x02};
     i2c_write_bytes(&I2CConfigStruct, 59, lcd_init, sizeof(lcd_init));
 
-    char message[] = "Thing Is: 1    ";
-    lcd_write_message(&I2CConfigStruct, message, sizeof(message));
+    char initial_message[] = "               ";
+    lcd_write_message(&I2CConfigStruct, initial_message, sizeof(initial_message));
 
     uint8_t response;
 
@@ -99,13 +97,21 @@ int main(void) {
     I2CConfigStruct_Numpad.rx_length = 1;
 
     uint8_t bytes[] = {0x0F};
+    char message[12];
+    unsigned int row;
 
     while (1) {
         i2c_write_bytes(&I2CConfigStruct_Numpad, 33, bytes, sizeof(bytes));
 
-        char message[12];
-        sprintf(message, "Thing Is: %d", 15 - (unsigned int) response);
-        lcd_write_message(&I2CConfigStruct, message, sizeof(message));
+        if (response != 15) {
+
+            row = (unsigned int)floor(log(15 - response) / log(2));
+            sprintf(message, "Thing Is: %d", row);
+            lcd_write_message(&I2CConfigStruct, message, sizeof(message));
+        }
+
+        while (duration_passed != 3);
+        duration_passed = 0;
     }
 
     return 0;
