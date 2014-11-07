@@ -1,4 +1,5 @@
 #include <string.h>
+#include <math.h>
 #include <stdio.h>
 #include "lpc17xx_gpio.h"
 #include "lpc17xx_i2c.h"
@@ -71,10 +72,9 @@ void lcd_write_message(I2C_M_SETUP_Type * i2c_config, char message[], int length
     }
 
     i2c_write_bytes(i2c_config, 59, data_write, 58);
-
-    while (duration_passed != 3);
-    duration_passed = 0;
 }
+
+int p = 0;
 
 int main(void) {
     init_i2c();
@@ -88,9 +88,8 @@ int main(void) {
     uint8_t lcd_init[] = {0x00, 0x35, 0x9F, 0x34, 0x0C, 0x02};
     i2c_write_bytes(&I2CConfigStruct, 59, lcd_init, sizeof(lcd_init));
 
-    char message[] = "Thing Is: 1    ";
-    lcd_write_message(&I2CConfigStruct, message, sizeof(message));
-
+    char initial_message[] = "               ";
+    lcd_write_message(&I2CConfigStruct, initial_message, sizeof(initial_message));
 
     uint8_t response;
 
@@ -99,15 +98,35 @@ int main(void) {
     I2CConfigStruct_Numpad.rx_data = &response;
     I2CConfigStruct_Numpad.rx_length = 1;
 
-    uint8_t bytes[] = {0x0F};
-    i2c_write_bytes(&I2CConfigStruct_Numpad, 33, bytes, sizeof(bytes));
+    char numpad_chars[] = {'D', 'C', 'B', 'A', '#', '9', '6', '3', '0', '8', '5',
+                           '2', '*', '7', '4', '1'};
 
+    uint8_t bytes[] = {0};
+    char message[17] = "                   ";
+    unsigned int actual_row;
+    unsigned int actual_col;
     while (1) {
-        char message[16];
-        sprintf(message, "Thing Is: %d", response);
-        lcd_write_message(&I2CConfigStruct, message, sizeof(message));
+        uint8_t col;
+        for (col = 1; col < 9; col = col*2) {
+            bytes[0] = (col << 4);
+            i2c_write_bytes(&I2CConfigStruct_Numpad, 33, bytes, 1);
 
-        i2c_write_bytes(&I2CConfigStruct_Numpad, 33, bytes, sizeof(bytes));
+            if (response != bytes[0]) {
+                bytes[0] = 0x0F;
+                i2c_write_bytes(&I2CConfigStruct_Numpad, 33, bytes, 1);
+
+                actual_row = (unsigned int)floor(log(15 - response) / log(2));
+                actual_col = (unsigned int)floor(log(col) / log(2));
+
+                message[p] = numpad_chars[actual_row + (actual_col * 4)];
+                lcd_write_message(&I2CConfigStruct, message, sizeof(message));
+
+                p++;
+            }
+
+            while (duration_passed != 2);
+            duration_passed = 0;
+        }
     }
 
     return 0;
