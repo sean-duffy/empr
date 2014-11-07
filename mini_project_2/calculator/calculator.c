@@ -74,9 +74,10 @@ void lcd_write_message(I2C_M_SETUP_Type * i2c_config, char message[], int length
     i2c_write_bytes(i2c_config, 59, data_write, 58);
 }
 
-int p = 0;
+
 
 int main(void) {
+    int p = 0;
     init_i2c();
 
     SysTick_Config(SystemCoreClock / 95);
@@ -102,7 +103,7 @@ int main(void) {
                            '2', '*', '7', '4', '1'};
 
     uint8_t bytes[] = {0};
-    char message[17] = "                   ";
+    char message[17] = "                 ";
     unsigned int actual_row;
     unsigned int actual_col;
     while (1) {

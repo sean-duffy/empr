@@ -102,7 +102,7 @@ int main(void) {
                            '2', '*', '7', '4', '1'};
 
     uint8_t bytes[] = {0};
-    char message[17] = "                   ";
+    char message[17] = "                 ";
     unsigned int actual_row;
     unsigned int actual_col;
     while (1) {
