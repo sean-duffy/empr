@@ -74,6 +74,8 @@ void lcd_write_message(I2C_M_SETUP_Type * i2c_config, char message[], int length
     i2c_write_bytes(i2c_config, 59, data_write, 58);
 }
 
+int p = 0;
+
 int main(void) {
     init_i2c();
 
@@ -100,7 +102,7 @@ int main(void) {
                            '2', '*', '7', '4', '1'};
 
     uint8_t bytes[] = {0};
-    char message[12];
+    char message[17] = "                   ";
     unsigned int actual_row;
     unsigned int actual_col;
     while (1) {
@@ -115,8 +117,11 @@ int main(void) {
 
                 actual_row = (unsigned int)floor(log(15 - response) / log(2));
                 actual_col = (unsigned int)floor(log(col) / log(2));
-                sprintf(message, "Thing Is: %c", numpad_chars[actual_row + (actual_col * 4)]);
+
+                message[p] = numpad_chars[actual_row + (actual_col * 4)];
                 lcd_write_message(&I2CConfigStruct, message, sizeof(message));
+
+                p++;
             }
 
             while (duration_passed != 2);
