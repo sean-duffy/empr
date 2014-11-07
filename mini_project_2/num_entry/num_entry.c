@@ -96,22 +96,29 @@ int main(void) {
     I2CConfigStruct_Numpad.rx_data = &response;
     I2CConfigStruct_Numpad.rx_length = 1;
 
-    uint8_t bytes[] = {0x0F};
-    char message[12];
-    unsigned int row;
-
+    uint8_t bytes[] = {0};
+    char message[14];
+    unsigned int actual_row;
+    unsigned int actual_col;
     while (1) {
-        i2c_write_bytes(&I2CConfigStruct_Numpad, 33, bytes, sizeof(bytes));
+        uint8_t col;
+        for (col = 1; col < 9; col = col*2) {
+            bytes[0] = (col << 4);
+            i2c_write_bytes(&I2CConfigStruct_Numpad, 33, bytes, 1);
 
-        if (response != 15) {
+            if (response != bytes[0]) {
+                bytes[0] = 0x0F;
+                i2c_write_bytes(&I2CConfigStruct_Numpad, 33, bytes, 1);
 
-            row = (unsigned int)floor(log(15 - response) / log(2));
-            sprintf(message, "Thing Is: %d", row);
-            lcd_write_message(&I2CConfigStruct, message, sizeof(message));
+                actual_row = (unsigned int)floor(log(15 - response) / log(2));
+                actual_col = (unsigned int)floor(log(col) / log(2));
+                sprintf(message, "Thing Is: %02d ", actual_row + (actual_col * 4));
+                lcd_write_message(&I2CConfigStruct, message, sizeof(message));
+            }
+
+            while (duration_passed != 2);
+            duration_passed = 0;
         }
-
-        while (duration_passed != 3);
-        duration_passed = 0;
     }
 
     return 0;
