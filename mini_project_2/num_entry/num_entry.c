@@ -96,8 +96,11 @@ int main(void) {
     I2CConfigStruct_Numpad.rx_data = &response;
     I2CConfigStruct_Numpad.rx_length = 1;
 
+    char numpad_chars[] = {'D', 'C', 'B', 'A', '#', '9', '6', '3', '0', '8', '5',
+                           '2', '*', '7', '4', '1'};
+
     uint8_t bytes[] = {0};
-    char message[14];
+    char message[12];
     unsigned int actual_row;
     unsigned int actual_col;
     while (1) {
@@ -112,7 +115,7 @@ int main(void) {
 
                 actual_row = (unsigned int)floor(log(15 - response) / log(2));
                 actual_col = (unsigned int)floor(log(col) / log(2));
-                sprintf(message, "Thing Is: %02d ", actual_row + (actual_col * 4));
+                sprintf(message, "Thing Is: %c", numpad_chars[actual_row + (actual_col * 4)]);
                 lcd_write_message(&I2CConfigStruct, message, sizeof(message));
             }
 
