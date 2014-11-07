@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 
-char * get_result(char* input_string);
+char* get_result(char* input_string);
 
 int main(void){
     char input_string[20];
@@ -15,7 +15,7 @@ int main(void){
     }
 }
 
-char * get_result(char* input_string){
+char* get_result(char* input_string) {
     char* p_to_op = strpbrk(input_string, "+*/-");
     char operation;
     static char result[20];
@@ -78,5 +78,3 @@ char * get_result(char* input_string){
 
     return result;
 }
-
-
