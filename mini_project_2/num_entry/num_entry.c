@@ -91,7 +91,7 @@ int main(void) {
     char message[] = "Thing Is: 1    ";
     lcd_write_message(&I2CConfigStruct, message, sizeof(message));
 
-    char response;
+    uint8_t response;
 
 	I2C_M_SETUP_Type I2CConfigStruct_Numpad;
     I2CConfigStruct_Numpad.retransmissions_max = 3;
@@ -99,14 +99,13 @@ int main(void) {
     I2CConfigStruct_Numpad.rx_length = 1;
 
     uint8_t bytes[] = {0x0F};
-    i2c_write_bytes(&I2CConfigStruct_Numpad, 33, bytes, sizeof(bytes));
 
     while (1) {
+        i2c_write_bytes(&I2CConfigStruct_Numpad, 33, bytes, sizeof(bytes));
+
         char message[12];
         sprintf(message, "Thing Is: %d", 15 - (unsigned int) response);
         lcd_write_message(&I2CConfigStruct, message, sizeof(message));
-
-        i2c_write_bytes(&I2CConfigStruct_Numpad, 33, bytes, sizeof(bytes));
     }
 
     return 0;
