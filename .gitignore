@@ -1,10 +1,4 @@
-mini_project_1/led/bin
-mini_project_1/ledbits/bin
-
-mini_project_2/i2c/bin
-mini_project_2/serial/bin
-mini_project_2/lcd/bin
-mini_project_2/num_entry/bin
+bin/
 
 *.o
 *.swp
