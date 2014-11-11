@@ -1,6 +1,7 @@
 #include <string.h>
 #include <math.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include "lpc17xx_gpio.h"
 #include "lpc17xx_i2c.h"
 #include "lpc_types.h"
@@ -8,9 +9,73 @@
 #include "LPC17xx.h"
 
 int duration_passed = 0;
+int p = 0;
+char* result;
 
 void SysTick_Handler(void) {
     duration_passed++;
+}
+
+char* get_result(char* input_string) {
+    char* p_to_op = strpbrk(input_string, "+*/-");
+    char operation;
+    static char result[20];
+
+    if (p_to_op == NULL){
+        return input_string;
+    } else {
+        operation = *p_to_op;
+
+        char* plus = strtok(input_string, &operation);
+
+        //Case no first variable
+        if (input_string[0] == operation){
+            return plus;
+        }
+
+        char* plus2= strtok(NULL, &operation);
+
+        //Case no second variable
+        if (plus2 == NULL) {
+            return plus;
+        }
+
+        int first_n = atoi(plus);
+        int second_n = atoi(plus2);
+
+        int r;
+        double dr;
+
+        switch (operation) {
+            case '+': // ADD
+                r = first_n + second_n;
+                break;
+
+            case '*': // MULTIPLY
+                r = first_n * second_n;
+                break;
+
+            case '-': // MINUS
+                r = first_n - second_n;
+                break;
+
+            case '/': // DIVIDE
+                dr = (double)first_n / (double)second_n;
+                sprintf(result,"%f",dr);
+                return result;
+                break;
+
+            default:
+                strcpy(result,"Err: Unkown Opp");
+                break;
+        }
+
+    sprintf(result,"%d",r);
+
+    }
+
+
+    return result;
 }
 
 void init_i2c(void) {
@@ -74,10 +139,7 @@ void lcd_write_message(I2C_M_SETUP_Type * i2c_config, char message[], int length
     i2c_write_bytes(i2c_config, 59, data_write, 58);
 }
 
-
-
 int main(void) {
-    int p = 0;
     init_i2c();
 
     SysTick_Config(SystemCoreClock / 95);
@@ -99,11 +161,12 @@ int main(void) {
     I2CConfigStruct_Numpad.rx_data = &response;
     I2CConfigStruct_Numpad.rx_length = 1;
 
-    char numpad_chars[] = {'D', 'C', 'B', 'A', '#', '9', '6', '3', '0', '8', '5',
+    char numpad_chars[] = {'/', '*', '-', '+', '=', '9', '6', '3', '0', '8', '5',
                            '2', '*', '7', '4', '1'};
 
     uint8_t bytes[] = {0};
-    char message[17] = "                 ";
+
+    char message[] = "                         ";
     unsigned int actual_row;
     unsigned int actual_col;
     while (1) {
@@ -113,13 +176,21 @@ int main(void) {
             i2c_write_bytes(&I2CConfigStruct_Numpad, 33, bytes, 1);
 
             if (response != bytes[0]) {
+
                 bytes[0] = 0x0F;
                 i2c_write_bytes(&I2CConfigStruct_Numpad, 33, bytes, 1);
 
                 actual_row = (unsigned int)floor(log(15 - response) / log(2));
                 actual_col = (unsigned int)floor(log(col) / log(2));
 
-                message[p] = numpad_chars[actual_row + (actual_col * 4)];
+                if (numpad_chars[actual_row + (actual_col * 4)] != '=') {
+                    message[p] = numpad_chars[actual_row + (actual_col * 4)];
+                } else {
+                    result = get_result(message);
+                    message[16] = '=';
+                    message[17] = result[0];
+                }
+
                 lcd_write_message(&I2CConfigStruct, message, sizeof(message));
 
                 p++;
