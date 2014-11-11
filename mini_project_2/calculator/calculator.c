@@ -10,6 +10,8 @@
 
 int duration_passed = 0;
 int p = 0;
+char new[20];
+int i;
 char* result;
 
 void SysTick_Handler(void) {
@@ -33,7 +35,7 @@ char* get_result(char* input_string) {
             return plus;
         }
 
-        char* plus2= strtok(NULL, &operation);
+        char* plus2 = strtok(NULL, &operation);
 
         //Case no second variable
         if (plus2 == NULL) {
@@ -167,6 +169,7 @@ int main(void) {
     uint8_t bytes[] = {0};
 
     char message[] = "                         ";
+
     unsigned int actual_row;
     unsigned int actual_col;
     while (1) {
@@ -186,9 +189,12 @@ int main(void) {
                 if (numpad_chars[actual_row + (actual_col * 4)] != '=') {
                     message[p] = numpad_chars[actual_row + (actual_col * 4)];
                 } else {
-                    result = get_result(message);
+                    strcpy(new, message);
+                    result = get_result(new);
                     message[16] = '=';
-                    message[17] = result[0];
+                    for (i = 0; i < strlen(result); i++) {
+                        message[17+i] = result[i];
+                    }
                 }
 
                 lcd_write_message(&I2CConfigStruct, message, sizeof(message));
