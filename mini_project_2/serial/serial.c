@@ -56,3 +56,11 @@ void serial_init(void)
 	UART_FIFOConfig((LPC_UART_TypeDef *)LPC_UART0, &UARTFIFOConfigStruct);	// Initialize FIFO for UART0 peripheral
 	UART_TxCmd((LPC_UART_TypeDef *)LPC_UART0, ENABLE);			// Enable UART Transmit
 }
+
+int main(void) {
+    serial_init();
+    char message[] = "Hello World\n\r";
+    write_usb_serial_blocking(message, sizeof(message));
+
+    return 0;
+}
