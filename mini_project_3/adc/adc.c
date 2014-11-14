@@ -14,16 +14,16 @@ void SysTick_Handler(void) {
 void init_adc(void) {
     PINSEL_CFG_Type PinCfg; 
 
-    PinCfg.Funcnum = 3;
+    PinCfg.Funcnum = 1;
     PinCfg.OpenDrain = 0;
     PinCfg.Pinmode = 0;
-    PinCfg.Pinnum = 30;
-    PinCfg.Portnum = 1;
+    PinCfg.Pinnum = 24;
+    PinCfg.Portnum = 0;
     PINSEL_ConfigPin(&PinCfg);
 
     ADC_Init(LPC_ADC, 10000);
-    ADC_IntConfig(LPC_ADC, ADC_ADINTEN4, DISABLE);
-    ADC_ChannelCmd(LPC_ADC, ADC_CHANNEL_4, ENABLE);
+    ADC_IntConfig(LPC_ADC, ADC_ADINTEN0, DISABLE);
+    ADC_ChannelCmd(LPC_ADC, ADC_CHANNEL_1, ENABLE);
 }
 
 // Write options
@@ -82,17 +82,19 @@ int main(void) {
     char message[30];
     int i;
 
-    write_usb_serial_blocking("Hati\n\r",5);
+    write_usb_serial_blocking("Hati\n\r", 6);
 
     while(1) {
         // read value of potencjometer
         ADC_StartCmd(LPC_ADC,ADC_START_NOW);
         //Wait conversion complete
-        while (!(ADC_ChannelGetStatus(LPC_ADC,ADC_CHANNEL_4,ADC_DATA_DONE)));
+        while (!(ADC_ChannelGetStatus(LPC_ADC,ADC_CHANNEL_1,ADC_DATA_DONE)));
 
-        adc_value = ADC_ChannelGetData(LPC_ADC,ADC_CHANNEL_4);
-        sprintf(message, "ChannelGetData Data: %05d\n\r", adc_value);
-        write_usb_serial_blocking(message, sizeof(message));
+        adc_value = ADC_ChannelGetData(LPC_ADC,ADC_CHANNEL_1);
+        if (adc_value != 0) {
+            sprintf(message, "ChannelGetData Data: %05d\n\r", adc_value);
+            write_usb_serial_blocking(message, sizeof(message));
+        }
     }
 
 
