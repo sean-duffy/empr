@@ -16,7 +16,7 @@ void init_adc(void) {
 
     PinCfg.Funcnum = 1;
     PinCfg.OpenDrain = 0;
-    PinCfg.Pinmode = 0;
+    PinCfg.Pinmode = PINSEL_PINMODE_PULLUP;
     PinCfg.Pinnum = 24;
     PinCfg.Portnum = 0;
     PINSEL_ConfigPin(&PinCfg);
@@ -80,23 +80,21 @@ int main(void) {
     
     uint16_t adc_value;
     char message[30];
-    int i;
-
-    write_usb_serial_blocking("Hati\n\r", 6);
 
     while(1) {
-        // read value of potencjometer
+        // Read value of potencjometer
         ADC_StartCmd(LPC_ADC,ADC_START_NOW);
-        //Wait conversion complete
+        // Wait conversion complete
         while (!(ADC_ChannelGetStatus(LPC_ADC,ADC_CHANNEL_1,ADC_DATA_DONE)));
 
         adc_value = ADC_ChannelGetData(LPC_ADC,ADC_CHANNEL_1);
-        if (adc_value != 0) {
-            sprintf(message, "ChannelGetData Data: %05d\n\r", adc_value);
-            write_usb_serial_blocking(message, sizeof(message));
-        }
-    }
+        sprintf(message, "ChannelGetData Data: %2.3f\n\r", (double) adc_value / 1240.0);
+        write_usb_serial_blocking(message, sizeof(message));
 
+        while (duration_passed != 2);
+        duration_passed = 0;
+
+    }
 
     return 0;
 }
