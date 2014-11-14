@@ -13,25 +13,17 @@ void SysTick_Handler(void) {
 
 void init_adc(void) {
     PINSEL_CFG_Type PinCfg; 
-    PinCfg.OpenDrain = PINSEL_PINMODE_NORMAL;
-    PinCfg.Pinmode = PINSEL_PINMODE_PULLUP;
+
     PinCfg.Funcnum = 3;
+    PinCfg.OpenDrain = 0;
+    PinCfg.Pinmode = 0;
     PinCfg.Pinnum = 30;
     PinCfg.Portnum = 1;
     PINSEL_ConfigPin(&PinCfg);
 
     ADC_Init(LPC_ADC, 10000);
-    ADC_StartCmd(LPC_ADC, ADC_START_NOW);
-    ADC_BurstCmd(LPC_ADC, 1);
-    ADC_ChannelCmd(LPC_ADC, 0, ENABLE);
-    //ADC_ChannelCmd(LPC_ADC, 1, ENABLE);
-    //ADC_ChannelCmd(LPC_ADC, 2, ENABLE);
-    //ADC_ChannelCmd(LPC_ADC, 3, ENABLE);
-    //ADC_ChannelCmd(LPC_ADC, 4, ENABLE);
-    //ADC_ChannelCmd(LPC_ADC, 5, ENABLE);
-    //ADC_ChannelCmd(LPC_ADC, 6, ENABLE);
-    //ADC_ChannelCmd(LPC_ADC, 7, ENABLE);
-
+    ADC_IntConfig(LPC_ADC, ADC_ADINTEN4, DISABLE);
+    ADC_ChannelCmd(LPC_ADC, ADC_CHANNEL_4, ENABLE);
 }
 
 // Write options
@@ -87,30 +79,22 @@ int main(void) {
     SysTick_Config(SystemCoreClock / 6);
     
     uint16_t adc_value;
-    char message[31];
+    char message[30];
     int i;
 
-    while (1) {
-        for (i = 0; i < 8; i++) {
-            adc_value = ADC_ChannelGetData(LPC_ADC, i);
-            if (adc_value != 0){
-                sprintf(message, "%dChannelGetData Data: %05d\n\r", i, adc_value);
-                write_usb_serial_blocking(message, sizeof(message));
-            }
+    write_usb_serial_blocking("Hati\n\r",5);
 
-            adc_value = ADC_GetData(i);
-            if (adc_value != 0){
-                sprintf(message, "%d       GetData Data: %05d\n\r", i, adc_value);
-                write_usb_serial_blocking(message, sizeof(message));
-            }
+    while(1) {
+        // read value of potencjometer
+        ADC_StartCmd(LPC_ADC,ADC_START_NOW);
+        //Wait conversion complete
+        while (!(ADC_ChannelGetStatus(LPC_ADC,ADC_CHANNEL_4,ADC_DATA_DONE)));
 
-            //adc_value = ADC_GlobalGetData(LPC_ADC);
-            //if (adc_value != 0){
-            //    sprintf(message, "%d Global GetData Data: %05d\n\r", i, adc_value);
-            //    write_usb_serial_blocking(message, sizeof(message));
-            //}
-        }
+        adc_value = ADC_ChannelGetData(LPC_ADC,ADC_CHANNEL_4);
+        sprintf(message, "ChannelGetData Data: %05d\n\r", adc_value);
+        write_usb_serial_blocking(message, sizeof(message));
     }
+
 
     return 0;
 }
