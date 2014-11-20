@@ -25,9 +25,23 @@ void init_dac(void) {
 
     //change for dac
     DAC_Init (LPC_DAC);
-    DAC_UpdateValue (LPC_DAC, 0);
 
-    //DAC_ConfigDAConverterControl (LPC_DAC, DAC_CONVERTER_CFG_Type *DAC_ConverterConfigStruct)
+    int time = 500;
+
+    while(1){
+    DAC_SetDMATimeOut  (LPC_DAC, time);
+    DAC_UpdateValue (LPC_DAC, 0);
+    
+    DAC_SetDMATimeOut  (LPC_DAC, time);
+    DAC_UpdateValue (LPC_DAC, 250);
+    }
+
+    
+    //configuratoin to enable and operate DMA timer
+    //DAC_CONVERTER_CFG_Type dac_converter_cfg;
+    //dac_converter_cfg.CNT_ENA = 1;
+    
+    //DAC_ConfigDAConverterControl (LPC_DAC, &dac_converter_cfg);
 }
 
 // Write options
@@ -82,16 +96,6 @@ int main(void) {
     init_dac();
     SysTick_Config(SystemCoreClock / 6);
     
-    //write_usb_serial_blocking("Hello\n", sizeof("Hello\n"));
-    int v = 0;
-    while(1){
-        if (v==0){
-            v = 1;
-        } else {
-            v = 0;
-        }
-
-        DAC_UpdateValue(LPC_DAC, v*500);
-    }
+    write_usb_serial_blocking("Hello\n\r", sizeof("Hello\n\r"));
     return 0;
 }
