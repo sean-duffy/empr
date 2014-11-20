@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include "lpc_types.h"
 #include "lpc17xx_pinsel.h"
 #include "lpc17xx_uart.h"
@@ -24,6 +25,37 @@ void init_adc(void) {
     ADC_Init(LPC_ADC, 10000);
     ADC_IntConfig(LPC_ADC, ADC_ADINTEN0, DISABLE);
     ADC_ChannelCmd(LPC_ADC, ADC_CHANNEL_1, ENABLE);
+}
+
+static int dblcmp (const void * a, const void * b) {
+  if (*(double*)a > *(double*)b) return 1;
+  else if (*(double*)a < *(double*)b) return -1;
+  else return 0;
+}
+
+double mode(double nums[], int size) {
+    qsort(nums, size, sizeof(double), dblcmp);
+    int count = 1;
+    int max_count = count;
+    double prev = nums[0];
+    double n = prev;
+    int i;
+
+    for (i = 1; i < size; i++) {
+        if (nums[i] == prev) {
+            count++;
+        } else {
+            count = 1;
+        }
+        if (count > max_count) {
+            n = prev;
+            max_count = count;
+        }
+
+        prev = nums[i];
+    }
+
+    return n;
 }
 
 // Write options
@@ -80,19 +112,32 @@ int main(void) {
     
     uint16_t adc_value;
     char message[7];
+    int mode_n = 10;
+    double values[mode_n];
+    int n = 0;
+    double last_value = 0;
+    double current_value;
 
     while(1) {
-        // Read value of potencjometer
+        // Read analogue value
         ADC_StartCmd(LPC_ADC,ADC_START_NOW);
         // Wait conversion complete
         while (!(ADC_ChannelGetStatus(LPC_ADC,ADC_CHANNEL_1,ADC_DATA_DONE)));
 
         adc_value = ADC_ChannelGetData(LPC_ADC,ADC_CHANNEL_1);
-        sprintf(message, "%1.2fV\n\r", (double) adc_value / 1240.0);
-        write_usb_serial_blocking(message, sizeof(message));
+        values[n] = (double) adc_value;
 
-        while (duration_passed != 2);
-        duration_passed = 0;
+        if (n < mode_n) {
+            n++;
+        } else {
+            current_value = mode(values, sizeof(values)/sizeof(double)) / 1240.0;
+            if (current_value != last_value) {
+                sprintf(message, "%1.2fV\n\r", current_value);
+                write_usb_serial_blocking(message, sizeof(message));
+            }
+            last_value = current_value;
+            n = 0;
+        }
 
     }
 
