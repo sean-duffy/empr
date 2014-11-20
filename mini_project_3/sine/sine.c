@@ -1,4 +1,6 @@
 #include <stdio.h>
+#include <math.h>
+
 #include "lpc_types.h"
 #include "lpc17xx_pinsel.h"
 #include "lpc17xx_uart.h"
@@ -73,20 +75,42 @@ void serial_init(void)
 	UART_TxCmd((LPC_UART_TypeDef *)LPC_UART0, ENABLE);			// Enable UART Transmit
 }
 
+void wave(double freq, int voltage){
+    //freq = 100 * (double) 4/(double) 419;
+    freq = 100;
+    int res = 360;
+    int sine_buff[res];
+
+    int i;
+    for(i=0; i<360; i++){
+        sine_buff[i] = (voltage * sin((2*M_PI/res)*i) + voltage) / 2;
+        char c_sin[20];
+        sprintf(c_sin, "sine:\t%d\n\r", freq);
+        write_usb_serial_blocking(c_sin,sizeof(c_sin));
+    }
+    
+    i = 0;
+    write_usb_serial_blocking("mark\n\r",sizeof("mark\n\r"));
+    while(1){
+        if (i >= res) {
+            i = 0;
+        }
+        
+        while(duration_passed < freq);
+        duration_passed = 0;
+
+        DAC_UpdateValue(LPC_DAC, sine_buff[i]);
+        i++;
+
+    }
+    return;
+}
 int main(void) {
     serial_init();
     init_dac();
-    SysTick_Config(SystemCoreClock / 6);
+    SysTick_Config(SystemCoreClock / 600000);
     write_usb_serial_blocking("Hello\n\r", sizeof("Hello\n\r"));
-    while(1){
-        while(duration_passed != 1);
-        duration_passed = 0;
-        DAC_UpdateValue(LPC_DAC,300);
-        
-        while(duration_passed != 1);
-        duration_passed = 0;
-        DAC_UpdateValue(LPC_DAC,100);
-    }
+    wave((double) 100,500);
 
     return 0;
 }
