@@ -23,25 +23,7 @@ void init_dac(void) {
     PinCfg.Portnum = 0;
     PINSEL_ConfigPin(&PinCfg);
 
-    //change for dac
     DAC_Init (LPC_DAC);
-
-    int time = 500;
-
-    while(1){
-    DAC_SetDMATimeOut  (LPC_DAC, time);
-    DAC_UpdateValue (LPC_DAC, 0);
-    
-    DAC_SetDMATimeOut  (LPC_DAC, time);
-    DAC_UpdateValue (LPC_DAC, 250);
-    }
-
-    
-    //configuratoin to enable and operate DMA timer
-    //DAC_CONVERTER_CFG_Type dac_converter_cfg;
-    //dac_converter_cfg.CNT_ENA = 1;
-    
-    //DAC_ConfigDAConverterControl (LPC_DAC, &dac_converter_cfg);
 }
 
 // Write options
@@ -95,7 +77,16 @@ int main(void) {
     serial_init();
     init_dac();
     SysTick_Config(SystemCoreClock / 6);
-    
     write_usb_serial_blocking("Hello\n\r", sizeof("Hello\n\r"));
+    while(1){
+        while(duration_passed != 1);
+        duration_passed = 0;
+        DAC_UpdateValue(LPC_DAC,300);
+        
+        while(duration_passed != 1);
+        duration_passed = 0;
+        DAC_UpdateValue(LPC_DAC,100);
+    }
+
     return 0;
 }
