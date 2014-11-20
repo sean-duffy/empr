@@ -32,15 +32,15 @@ LDFLAGS=$(CMSISFL) -static -mcpu=cortex-m3 -mthumb -mthumb-interwork \
 
 LDFLAGS+=-L$(CMSIS)/lib -lDriversLPC17xxgnu
 
-EXECNAME	= bin/adc
+EXECNAME	= bin/sine
 
-OBJ		= adc.o 
+OBJ		= sine.o 
 
-all: 	adc
+all: 	sine
 	@echo "Build finished"
 
 
-adc: $(OBJ)
+sine: $(OBJ)
 	$(CC) -o $(EXECNAME) $(OBJ) $(LDFLAGS)
 	$(OBJCOPY) -I elf32-little -O binary $(EXECNAME) $(EXECNAME).bin
 	
