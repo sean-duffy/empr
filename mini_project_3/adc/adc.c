@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <math.h>
 #include "lpc_types.h"
 #include "lpc17xx_pinsel.h"
 #include "lpc17xx_uart.h"
@@ -112,7 +113,7 @@ int main(void) {
     
     uint16_t adc_value;
     char message[7];
-    int mode_n = 10;
+    int mode_n = 20;
     double values[mode_n];
     int n = 0;
     double last_value = 0;
@@ -131,7 +132,7 @@ int main(void) {
             n++;
         } else {
             current_value = mode(values, sizeof(values)/sizeof(double)) / 1240.0;
-            if (current_value != last_value) {
+            if (rint(current_value) != rint(last_value)) {
                 sprintf(message, "%1.2fV\n\r", current_value);
                 write_usb_serial_blocking(message, sizeof(message));
             }
