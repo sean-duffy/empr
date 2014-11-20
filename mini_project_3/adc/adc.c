@@ -79,7 +79,7 @@ int main(void) {
     SysTick_Config(SystemCoreClock / 6);
     
     uint16_t adc_value;
-    char message[30];
+    char message[7];
 
     while(1) {
         // Read value of potencjometer
@@ -88,7 +88,7 @@ int main(void) {
         while (!(ADC_ChannelGetStatus(LPC_ADC,ADC_CHANNEL_1,ADC_DATA_DONE)));
 
         adc_value = ADC_ChannelGetData(LPC_ADC,ADC_CHANNEL_1);
-        sprintf(message, "ChannelGetData Data: %2.3f\n\r", (double) adc_value / 1240.0);
+        sprintf(message, "%1.2fV\n\r", (double) adc_value / 1240.0);
         write_usb_serial_blocking(message, sizeof(message));
 
         while (duration_passed != 2);
