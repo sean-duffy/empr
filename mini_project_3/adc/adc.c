@@ -133,7 +133,7 @@ int main(void) {
         } else {
             current_value = mode(values, sizeof(values)/sizeof(double)) / 1240.0;
             if (rint(current_value) != rint(last_value)) {
-                sprintf(message, "%1.2fV\n\r", current_value);
+                sprintf(message, "%1.2fV\r", current_value);
                 write_usb_serial_blocking(message, sizeof(message));
             }
             last_value = current_value;
