@@ -82,7 +82,7 @@ void serial_init(void)
 }
 
 void wave(double freq, int voltage){
-    freq = freq / 49.7;
+    freq = 1/freq * 1389000;
     int res = 360;
 
     int i;
@@ -98,7 +98,7 @@ int main(void) {
     serial_init();
     init_dac();
 
-    wave(2000, 500);
+    wave(5000, 500);
 
     return 0;
 }
