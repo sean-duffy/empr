@@ -7,16 +7,16 @@
 #include "lpc17xx_dac.h"
 #include "LPC17xx.h"
 
-int duration_passed = 0;
+int current_tick = 0;
 int sine_buff[360];
 
 void SysTick_Handler(void) {
-    if (duration_passed >= 360) {
-        duration_passed = 0;
+    if (current_tick >= 360) {
+        current_tick = 0;
     }
 
-    DAC_UpdateValue(LPC_DAC, sine_buff[duration_passed]);
-    duration_passed += 5;
+    DAC_UpdateValue(LPC_DAC, sine_buff[current_tick]);
+    current_tick += 5;
 }
 
 void init_dac(void) {
