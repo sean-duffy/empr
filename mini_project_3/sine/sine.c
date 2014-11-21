@@ -7,16 +7,16 @@
 #include "lpc17xx_dac.h"
 #include "LPC17xx.h"
 
-int duration_passed = 0;
+int current_tick = 0;
 int sine_buff[360];
 
 void SysTick_Handler(void) {
-    if (duration_passed >= 360) {
-        duration_passed = 0;
+    if (current_tick >= 360) {
+        current_tick = 0;
     }
 
-    DAC_UpdateValue(LPC_DAC, sine_buff[duration_passed]);
-    duration_passed += 5;
+    DAC_UpdateValue(LPC_DAC, sine_buff[current_tick]);
+    current_tick += 5;
 }
 
 void init_dac(void) {
@@ -81,13 +81,14 @@ void serial_init(void)
 	UART_TxCmd((LPC_UART_TypeDef *)LPC_UART0, ENABLE);			// Enable UART Transmit
 }
 
-void wave(double freq, int voltage){
+void wave(double freq, double amplitude) {
     freq = 1/freq * 1389000;
+    amplitude = amplitude * 309.1;
     int res = 360;
 
     int i;
     for(i = 0; i < 360; i++) {
-        sine_buff[i] = (voltage * sin((2*M_PI/res)*i) + voltage) / 2;
+        sine_buff[i] = (int) floor((amplitude * sin((2*M_PI/res)*i) + amplitude) / 2);
     }
 
     write_usb_serial_blocking("Go!\n\r", 5);
@@ -98,7 +99,7 @@ int main(void) {
     serial_init();
     init_dac();
 
-    wave(5000, 500);
+    wave(5000, 2.5);
 
     return 0;
 }
