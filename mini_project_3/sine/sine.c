@@ -9,6 +9,7 @@
 
 int current_tick = 0;
 int sine_buff[360];
+int duration_passed = 0;
 
 void SysTick_Handler(void) {
     if (current_tick >= 360) {
@@ -17,6 +18,7 @@ void SysTick_Handler(void) {
 
     DAC_UpdateValue(LPC_DAC, sine_buff[current_tick]);
     current_tick += 5;
+    duration_passed++;
 }
 
 void init_dac(void) {
@@ -98,8 +100,20 @@ void wave(double freq, double amplitude) {
 int main(void) {
     serial_init();
     init_dac();
+    int n;
 
-    wave(5000, 2.5);
+    while(1){
+        wave(4000, 2.5);
+        while (duration_passed != 1000000);
+        duration_passed = 0;
 
+        wave(8000, 1.5);
+        while (duration_passed != 1000000);
+        duration_passed = 0;
+
+        wave(1000, 3.3);
+        while (duration_passed != 1000000);
+        duration_passed = 0;
+    }
     return 0;
 }
