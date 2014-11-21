@@ -81,13 +81,14 @@ void serial_init(void)
 	UART_TxCmd((LPC_UART_TypeDef *)LPC_UART0, ENABLE);			// Enable UART Transmit
 }
 
-void wave(double freq, int voltage){
+void wave(double freq, double amplitude) {
+    amplitude = amplitude * 309.1;
     freq = freq / 49.7;
     int res = 360;
 
     int i;
     for(i = 0; i < 360; i++) {
-        sine_buff[i] = (voltage * sin((2*M_PI/res)*i) + voltage) / 2;
+        sine_buff[i] = (int) floor((amplitude * sin((2*M_PI/res)*i) + amplitude) / 2);
     }
 
     write_usb_serial_blocking("Go!\n\r", 5);
@@ -98,7 +99,7 @@ int main(void) {
     serial_init();
     init_dac();
 
-    wave(2000, 500);
+    wave(5000, 2.5);
 
     return 0;
 }
