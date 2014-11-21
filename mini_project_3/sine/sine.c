@@ -8,9 +8,15 @@
 #include "LPC17xx.h"
 
 int duration_passed = 0;
+int sine_buff[360];
 
 void SysTick_Handler(void) {
-    duration_passed++;
+    if (duration_passed >= 360) {
+        duration_passed = 0;
+    }
+
+    DAC_UpdateValue(LPC_DAC, sine_buff[duration_passed]);
+    duration_passed += 5;
 }
 
 void init_dac(void) {
@@ -76,41 +82,23 @@ void serial_init(void)
 }
 
 void wave(double freq, int voltage){
-    //freq = 100 * (double) 4/(double) 419;
-    freq = 100;
+    freq = freq / 49.7;
     int res = 360;
-    int sine_buff[res];
 
     int i;
-    for(i=0; i<360; i++){
+    for(i = 0; i < 360; i++) {
         sine_buff[i] = (voltage * sin((2*M_PI/res)*i) + voltage) / 2;
-        char c_sin[20];
-        sprintf(c_sin, "sine:\t%d\n\r", freq);
-        write_usb_serial_blocking(c_sin,sizeof(c_sin));
     }
-    
-    i = 0;
-    write_usb_serial_blocking("mark\n\r",sizeof("mark\n\r"));
-    while(1){
-        if (i >= res) {
-            i = 0;
-        }
-        
-        while(duration_passed < freq);
-        duration_passed = 0;
 
-        DAC_UpdateValue(LPC_DAC, sine_buff[i]);
-        i++;
+    write_usb_serial_blocking("Go!\n\r", 5);
 
-    }
-    return;
+    SysTick_Config((int) floor(freq));
 }
 int main(void) {
     serial_init();
     init_dac();
-    SysTick_Config(SystemCoreClock / 600000);
-    write_usb_serial_blocking("Hello\n\r", sizeof("Hello\n\r"));
-    wave((double) 100,500);
+
+    wave(2000, 500);
 
     return 0;
 }
