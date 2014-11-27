@@ -126,7 +126,7 @@ int main(void) {
     serial_init();
     init_adc();
     init_dac();
-    SysTick_Config(SystemCoreClock / 6);
+    //SysTick_Config(SystemCoreClock / 6);
     
     uint16_t adc_value;
 
