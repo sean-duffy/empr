@@ -100,20 +100,20 @@ void wave(double freq, double amplitude) {
 int main(void) {
     serial_init();
     init_dac();
-    int n;
 
-    while(1){
+    while(1) {
         wave(4000, 2.5);
         while (duration_passed != 1000000);
         duration_passed = 0;
 
-        wave(8000, 1.5);
+        wave(7000, 3.3);
         while (duration_passed != 1000000);
         duration_passed = 0;
 
-        wave(1000, 3.3);
+        wave(6000, 1.5);
         while (duration_passed != 1000000);
         duration_passed = 0;
     }
+
     return 0;
 }
